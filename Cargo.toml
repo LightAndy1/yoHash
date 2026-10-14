@@ -6,7 +6,7 @@ members = ["crates/yohash-core", "crates/yohash-cli"]
 version = "0.1.0"
 edition = "2021"
 license = "BSD-2-Clause"
-repository = "https://github.com/OWNER/yoHash"
+repository = "https://github.com/LightAndy1/yoHash"
 
 [workspace.dependencies]
 md-5 = "0.10"
