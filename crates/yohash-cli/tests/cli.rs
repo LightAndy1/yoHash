@@ -77,10 +77,13 @@ fn one_bad_file_still_reports_the_good_one() {
     let out = cmd().arg(&a).arg("definitely-not-here-88888").output().unwrap();
     assert_eq!(out.status.code(), Some(1));
     let text = String::from_utf8(out.stdout).unwrap();
-    assert!(text.contains(&format!(
-        "{}: BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD",
-        a.display()
-    )));
+    assert_eq!(
+        text,
+        format!(
+            "{}: BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD\n",
+            a.display()
+        )
+    );
 }
 
 #[test]
