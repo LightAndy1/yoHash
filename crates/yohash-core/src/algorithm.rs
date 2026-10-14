@@ -36,7 +36,10 @@ pub fn hash_with<D: sha2::digest::Digest>(reader: &mut dyn Read) -> Result<Vec<u
     let mut hasher = D::new();
     let mut buf = vec![0u8; CHUNK_SIZE];
     loop {
-        let n = reader.read(&mut buf)?;
+        let n = match reader.read(&mut buf) {
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+            result => result?,
+        };
         if n == 0 {
             break;
         }

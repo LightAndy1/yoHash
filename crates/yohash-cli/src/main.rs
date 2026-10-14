@@ -17,15 +17,20 @@ struct Args {
 
 fn parse_format(value: &str) -> Result<OutputFormat, String> {
     OutputFormat::parse(value)
-        .ok_or_else(|| format!("invalid format '{value}'; expected upper, lowercase, or base64"))
+        .ok_or_else(|| {
+            format!(
+                "invalid format '{value}'; expected one of: upper, uppercase, upperhex, lower, lowercase, lowerhex, base64"
+            )
+        })
 }
 
 fn main() -> ExitCode {
     let args = match Args::try_parse() {
         Ok(args) => args,
         Err(error) => {
+            let code = if error.use_stderr() { 1 } else { 0 };
             let _ = error.print();
-            return ExitCode::from(1);
+            return ExitCode::from(code);
         }
     };
     let Some(algorithm) = algorithm_by_name(&args.alg) else {

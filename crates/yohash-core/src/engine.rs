@@ -65,7 +65,7 @@ impl HashEngine {
     pub fn hash_files<'a>(
         &self,
         paths: &'a [PathBuf],
-        alg: &(dyn HashAlgorithm + Sync),
+        alg: &dyn HashAlgorithm,
         format: OutputFormat,
     ) -> Vec<(&'a PathBuf, Result<String, HashError>)> {
         paths
