@@ -1,0 +1,17 @@
+[workspace]
+resolver = "2"
+members = ["crates/yohash-core"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "BSD-2-Clause"
+repository = "https://github.com/OWNER/yoHash"
+
+[workspace.dependencies]
+md-5 = "0.10"
+sha2 = "0.10"
+rayon = "1.10"
+memmap2 = "0.9"
+thiserror = "2"
+base64 = "0.22"
