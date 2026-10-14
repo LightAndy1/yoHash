@@ -43,8 +43,20 @@ fn multiple_files_print_name_colon_hash_in_order() {
     let text = String::from_utf8(out.stdout).unwrap();
     let lines: Vec<&str> = text.lines().collect();
     assert_eq!(lines.len(), 2);
-    assert!(lines[0].starts_with(&format!("{}: ", a.display())));
-    assert!(lines[1].starts_with(&format!("{}: ", b.display())));
+    assert_eq!(
+        lines[0],
+        format!(
+            "{}: BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD",
+            a.display()
+        )
+    );
+    assert_eq!(
+        lines[1],
+        format!(
+            "{}: BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD",
+            b.display()
+        )
+    );
 }
 
 #[test]
@@ -65,7 +77,10 @@ fn one_bad_file_still_reports_the_good_one() {
     let out = cmd().arg(&a).arg("definitely-not-here-88888").output().unwrap();
     assert_eq!(out.status.code(), Some(1));
     let text = String::from_utf8(out.stdout).unwrap();
-    assert!(text.contains(a.to_str().unwrap()));
+    assert!(text.contains(&format!(
+        "{}: BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD",
+        a.display()
+    )));
 }
 
 #[test]
