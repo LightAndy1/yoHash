@@ -45,6 +45,26 @@ pub fn hash_with<D: sha2::digest::Digest>(reader: &mut dyn Read) -> Result<Vec<u
     Ok(hasher.finalize().to_vec())
 }
 
+pub const DEFAULT_ALGORITHM: &str = "SHA-256";
+
+static ALGORITHMS: [&dyn HashAlgorithm; 2] = [&Md5, &Sha256];
+
+pub fn algorithms() -> &'static [&'static dyn HashAlgorithm] {
+    &ALGORITHMS
+}
+
+fn normalize(name: &str) -> String {
+    name.trim().to_lowercase().replace('-', "")
+}
+
+pub fn algorithm_by_name(name: &str) -> Option<&'static dyn HashAlgorithm> {
+    let wanted = normalize(name);
+    ALGORITHMS
+        .iter()
+        .copied()
+        .find(|alg| normalize(alg.name()) == wanted)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -89,5 +109,24 @@ mod tests {
     fn names_are_stable() {
         assert_eq!(Md5.name(), "MD5");
         assert_eq!(Sha256.name(), "SHA-256");
+    }
+
+    #[test]
+    fn registry_lists_md5_and_sha256() {
+        let names: Vec<&str> = algorithms().iter().map(|a| a.name()).collect();
+        assert_eq!(names, vec!["MD5", "SHA-256"]);
+    }
+
+    #[test]
+    fn lookup_is_case_and_alias_insensitive() {
+        assert_eq!(algorithm_by_name("sha-256").unwrap().name(), "SHA-256");
+        assert_eq!(algorithm_by_name("sha256").unwrap().name(), "SHA-256");
+        assert_eq!(algorithm_by_name("MD5").unwrap().name(), "MD5");
+        assert!(algorithm_by_name("blake3").is_none());
+    }
+
+    #[test]
+    fn default_algorithm_resolves() {
+        assert!(algorithm_by_name(DEFAULT_ALGORITHM).is_some());
     }
 }
