@@ -2,9 +2,10 @@ use crate::algorithm::{HashAlgorithm, algorithm_by_name};
 use crate::error::HashError;
 use crate::format::OutputFormat;
 use memmap2::Mmap;
+use rayon::prelude::*;
 use std::fs::File;
 use std::io::ErrorKind;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 const DEFAULT_MMAP_THRESHOLD: u64 = 1 << 30;
 
@@ -59,6 +60,18 @@ impl HashEngine {
             )))
         })?;
         self.hash_file(path, alg, format)
+    }
+
+    pub fn hash_files<'a>(
+        &self,
+        paths: &'a [PathBuf],
+        alg: &(dyn HashAlgorithm + Sync),
+        format: OutputFormat,
+    ) -> Vec<(&'a PathBuf, Result<String, HashError>)> {
+        paths
+            .par_iter()
+            .map(|p| (p, self.hash_file(p, alg, format)))
+            .collect()
     }
 
     fn digest(&self, path: &Path, len: u64, alg: &dyn HashAlgorithm) -> Result<Vec<u8>, HashError> {
@@ -169,5 +182,28 @@ mod tests {
                 .unwrap(),
             "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
         );
+    }
+
+    #[test]
+    fn multi_file_preserves_input_order() {
+        let a = temp_file("order-a", b"a");
+        let b = temp_file("order-b", b"b");
+        let c = temp_file("order-c", b"c");
+        let paths = vec![c.clone(), a.clone(), b.clone()];
+        let e = HashEngine::new();
+        let out = e.hash_files(&paths, &Sha256, OutputFormat::LowerHex);
+        let order: Vec<&PathBuf> = out.iter().map(|(p, _)| *p).collect();
+        assert_eq!(order, vec![&c, &a, &b]);
+    }
+
+    #[test]
+    fn one_failure_does_not_abort_the_batch() {
+        let a = temp_file("batch-a", b"a");
+        let missing = std::path::PathBuf::from("definitely-not-here-67890");
+        let paths = vec![a.clone(), missing.clone()];
+        let e = HashEngine::new();
+        let out = e.hash_files(&paths, &Md5, OutputFormat::UpperHex);
+        assert!(out[0].1.is_ok());
+        assert!(matches!(out[1].1, Err(HashError::NotFound { .. })));
     }
 }
