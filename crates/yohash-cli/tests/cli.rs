@@ -10,19 +10,23 @@ fn cmd() -> Command {
 fn single_file_prints_only_the_hash() {
     let dir = tempfile::tempdir().unwrap();
     let p = dir.path().join("a.txt");
-    std::fs::File::create(&p).unwrap().write_all(b"abc").unwrap();
-    cmd()
-        .arg(&p)
-        .assert()
-        .success()
-        .stdout(predicate::eq("BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD\n"));
+    std::fs::File::create(&p)
+        .unwrap()
+        .write_all(b"abc")
+        .unwrap();
+    cmd().arg(&p).assert().success().stdout(predicate::eq(
+        "BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD\n",
+    ));
 }
 
 #[test]
 fn md5_lowercase_option() {
     let dir = tempfile::tempdir().unwrap();
     let p = dir.path().join("a.txt");
-    std::fs::File::create(&p).unwrap().write_all(b"abc").unwrap();
+    std::fs::File::create(&p)
+        .unwrap()
+        .write_all(b"abc")
+        .unwrap();
     cmd()
         .args(["-a", "md5", "-f", "lower"])
         .arg(&p)
@@ -36,8 +40,14 @@ fn multiple_files_print_name_colon_hash_in_order() {
     let dir = tempfile::tempdir().unwrap();
     let a = dir.path().join("hello world.txt");
     let b = dir.path().join("caf\u{e9}.txt");
-    std::fs::File::create(&a).unwrap().write_all(b"abc").unwrap();
-    std::fs::File::create(&b).unwrap().write_all(b"abc").unwrap();
+    std::fs::File::create(&a)
+        .unwrap()
+        .write_all(b"abc")
+        .unwrap();
+    std::fs::File::create(&b)
+        .unwrap()
+        .write_all(b"abc")
+        .unwrap();
     let out = cmd().arg(&a).arg(&b).output().unwrap();
     assert!(out.status.success());
     let text = String::from_utf8(out.stdout).unwrap();
@@ -73,8 +83,15 @@ fn missing_file_exits_one_with_message() {
 fn one_bad_file_still_reports_the_good_one() {
     let dir = tempfile::tempdir().unwrap();
     let a = dir.path().join("good.txt");
-    std::fs::File::create(&a).unwrap().write_all(b"abc").unwrap();
-    let out = cmd().arg(&a).arg("definitely-not-here-88888").output().unwrap();
+    std::fs::File::create(&a)
+        .unwrap()
+        .write_all(b"abc")
+        .unwrap();
+    let out = cmd()
+        .arg(&a)
+        .arg("definitely-not-here-88888")
+        .output()
+        .unwrap();
     assert_eq!(out.status.code(), Some(1));
     let text = String::from_utf8(out.stdout).unwrap();
     assert_eq!(
@@ -88,5 +105,10 @@ fn one_bad_file_still_reports_the_good_one() {
 
 #[test]
 fn unknown_algorithm_exits_one() {
-    cmd().args(["-a", "blake3"]).arg("README.md").assert().failure().code(1);
+    cmd()
+        .args(["-a", "blake3"])
+        .arg("README.md")
+        .assert()
+        .failure()
+        .code(1);
 }

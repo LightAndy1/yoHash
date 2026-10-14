@@ -1,4 +1,4 @@
-use crate::algorithm::{HashAlgorithm, algorithm_by_name};
+use crate::algorithm::{algorithm_by_name, HashAlgorithm};
 use crate::error::HashError;
 use crate::format::OutputFormat;
 use memmap2::Mmap;

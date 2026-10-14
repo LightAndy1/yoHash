@@ -19,19 +19,23 @@ mod tests {
 
     #[test]
     fn not_found_message_names_the_path() {
-        let e = HashError::NotFound { path: PathBuf::from("a.txt") };
+        let e = HashError::NotFound {
+            path: PathBuf::from("a.txt"),
+        };
         assert!(e.to_string().contains("a.txt"));
     }
 
     #[test]
     fn not_a_file_message_names_the_path() {
-        let e = HashError::NotAFile { path: PathBuf::from("dir") };
+        let e = HashError::NotAFile {
+            path: PathBuf::from("dir"),
+        };
         assert!(e.to_string().contains("dir"));
     }
 
     #[test]
     fn io_error_is_convertible_from_std_io_error() {
-        let src = std::io::Error::new(std::io::ErrorKind::Other, "boom");
+        let src = std::io::Error::other("boom");
         let e: HashError = src.into();
         assert!(matches!(e, HashError::Io(_)));
     }

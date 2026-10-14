@@ -16,9 +16,8 @@ struct Args {
 }
 
 fn parse_format(value: &str) -> Result<OutputFormat, String> {
-    OutputFormat::parse(value).ok_or_else(|| {
-        format!("invalid format '{value}'; expected upper, lowercase, or base64")
-    })
+    OutputFormat::parse(value)
+        .ok_or_else(|| format!("invalid format '{value}'; expected upper, lowercase, or base64"))
 }
 
 fn main() -> ExitCode {

@@ -38,23 +38,35 @@ mod tests {
 
     #[test]
     fn renders_upper_hex() {
-        assert_eq!(OutputFormat::UpperHex.render(&[0xde, 0xad, 0xbe, 0xef]), "DEADBEEF");
+        assert_eq!(
+            OutputFormat::UpperHex.render(&[0xde, 0xad, 0xbe, 0xef]),
+            "DEADBEEF"
+        );
     }
 
     #[test]
     fn renders_lower_hex() {
-        assert_eq!(OutputFormat::LowerHex.render(&[0xde, 0xad, 0xbe, 0xef]), "deadbeef");
+        assert_eq!(
+            OutputFormat::LowerHex.render(&[0xde, 0xad, 0xbe, 0xef]),
+            "deadbeef"
+        );
     }
 
     #[test]
     fn renders_base64() {
-        assert_eq!(OutputFormat::Base64.render(&[0xde, 0xad, 0xbe, 0xef]), "3q2+7w==");
+        assert_eq!(
+            OutputFormat::Base64.render(&[0xde, 0xad, 0xbe, 0xef]),
+            "3q2+7w=="
+        );
     }
 
     #[test]
     fn parses_aliases_case_insensitively() {
         assert_eq!(OutputFormat::parse("UPPER"), Some(OutputFormat::UpperHex));
-        assert_eq!(OutputFormat::parse("lowerhex"), Some(OutputFormat::LowerHex));
+        assert_eq!(
+            OutputFormat::parse("lowerhex"),
+            Some(OutputFormat::LowerHex)
+        );
         assert_eq!(OutputFormat::parse("Base64"), Some(OutputFormat::Base64));
         assert_eq!(OutputFormat::parse("nope"), None);
     }
